@@ -1,0 +1,120 @@
+%===========================================================
+%
+% Dedman/Lyle LaTeX Dissertation Template, v.2016
+% Structure organized by Ted C. Munger (TCM)
+%
+%===========================================================
+%===========================================================
+% BEGIN Document Style
+%===========================================================
+\documentclass[12pt]{report}
+
+  \usepackage{DL_thesis_v2016}  % TCM Global Style for particular SMU College, e.g. DL_thesis_v2016.sty
+
+  \input{packages.tex}               % Packages File
+
+  \geometry{letterpaper, margin=1in} % TCM Dedman/Lyle Standard 2016
+
+
+  \linespread{1.6}
+  \setcounter{secnumdepth}{4} % TCM Sets number subsections
+  \setcounter{tocdepth}{4}    % TCM Set the number of subsections in TOC
+  
+   \urlstyle{same} % TCM Set URL style to same font as text verses mono-spaced, i.e., courier
+
+%===========================================================
+% END Document Style
+%===========================================================
+%===========================================================
+% BEGIN Insert Custom Commands
+%===========================================================
+  \input{customcommands.tex}        %  File of global custom commands
+%===========================================================
+% END Insert Custom Commands
+%===========================================================
+%===========================================================
+% BEGIN Code to Minimize Error Warnings
+%===========================================================
+%-----------------------------------------------------------
+% BEGIN Reduce compile warnings for overfull and underfull hboxes & vboxes
+%       Adjust up or down to fit your specific needs TCM
+%-----------------------------------------------------------
+  \hbadness=50000
+  \vbadness=50000
+  \hfuzz=150pt
+%-----------------------------------------------------------  
+% END Reduce compile warnings for overfull and underfull hboxes TCM
+%-----------------------------------------------------------
+%-----------------------------------------------------------
+% BEGIN eliminate compile warnings for noindent hfill hbox in PDF bookmarks TCM
+%-----------------------------------------------------------
+  \pdfstringdefDisableCommands{
+  \def\hbox{ }                      % hyperref (temporarily) changes \hbox to a space in this context.
+  \def\hfill{ }                     % hyperref (temporarily) changes \hfill to a space in this context.
+  \def\noindent{ }                  % hyperref (temporarily) changes \noindent to a space in this context.
+  \def\hskip{ }                     % hyperref (temporarily) changes \hskip to a space in this context.
+  }
+%-----------------------------------------------------------
+% END eliminate compile warnings for noindent hfill hbox in PDF bookmarks TCM
+%-----------------------------------------------------------
+%===========================================================
+% END Code to Minimize Error Warnings
+%===========================================================
+
+%\thesisdraft                       % TCM uncomment if want draft printing
+
+%===========================================================
+% BEGIN Document
+%===========================================================
+
+\begin{document}
+
+%-----------------------------------------------------------
+%   Front pages of thesis
+%-----------------------------------------------------------
+   \input{FrontPages}       %   i. Front Pages File
+
+%-----------------------------------------------------------
+%   Body of the thesis
+%-----------------------------------------------------------
+  \begin{thesis}
+
+%-----------------------------------------------------------
+%      Chapters are included here
+%-----------------------------------------------------------
+   \input{chap1.tex}        %  1. Chapter 1 
+   
+   \input{chap2.tex}        %  2. Chapter 2
+
+%-----------------------------------------------------------
+%   Appendices go here if no appendix, remove \StartAppendix
+%-----------------------------------------------------------
+   \StartAppendix           %  All chapters from this point are treated as appendices
+   
+   \input{app.tex}          %  Appendix A
+
+%-----------------------------------------------------------
+%   Bibliography goes below
+%   Check with specific department on the appropriate
+%   bibliography style to use
+%-----------------------------------------------------------
+   \nocite{*}
+   \bibliographystyle{acm}
+   \raggedright
+%   \footnotesize           % For smaller font on Bibliography
+   \bibliography{dedmanbib}
+%   \normalsize             % Uncomment to return to normal font after smaller font
+
+%-----------------------------------------------------------
+%   END body of the thesis
+%-----------------------------------------------------------
+  \end{thesis}
+
+%===========================================================
+%   END thesis document
+%===========================================================
+
+\end{document}
+%===========================================================
+% END Document
+%===========================================================
