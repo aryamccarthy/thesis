@@ -1,0 +1,52 @@
+\chapter{COMPARISON WITH POPULAR METHODS} \label{ch:comparison}% Must have a blank line after every section label
+
+\section{Introduction} \label{sec:comparison introduction}
+
+\subsection{Hierarchical clustering}\label{sec:Hierarchical Clustering}
+
+\subsection{Flat cluster extraction}\label{sec:Flat Cluster Extraction}
+
+Once the dendrogram structure relating nodes has been identified, one must extract a set of flat (i.e. non-nested) clusters. Informally, this is often done by drawing a horizontal line across the dendrogram: the clusters which this line crosses are selected. Other methods exist which can adaptively select cluster groups, especially when a minimum cluster size is specified~\cite{campello2013density}.
+
+The popular metric for deciding at which level to cut is Newman's modularity score, $Q^W$~\cite{newman2006modularity}. As Mann notes, others exist; he relies on maximizing average degree. \todo{Beware: Limits of modularity maximization in community detection by Fortunato...}
+
+\subsection{Mixing coefficient ($\mu$)}
+
+\subsection{LFR benchmark} \label{sec:LFR Benchmark} % Must have a blank line after every section label
+
+Mann tested on the GN benchmark, which has these problems: x, y, z.
+
+This parameterization of the model largely aligns with the work of Yang et al.~\cite{yang2016comparative}. Due to the temporal constraints of the MCF algorithm, the average degree and network size parameters needed to be reduced. The community size and degree distribution exponents are preserved at -1 and -2 respectively, as discussed in Lancichinetti et al.~\cite{lancichinetti2008benchmark}.
+
+\begin{table}
+	\centering
+		\begin{tabular}{l r}
+		\toprule
+		Parameter & Value \\
+		\midrule
+		Number of nodes $N$ & 10--150 \\
+		Maximum degree & 0.2N \\
+		Maximum community size & 0.1N \\
+		Average degree & 10 \\
+		Degree distribution exponent & -2 \\
+		Community size distribution exponent & -1 \\
+		Mixing coefficient $\mu$ & [0.03, 0.75] \\
+		\bottomrule
+		\end{tabular}
+	\caption{Parameter grid for LFR benchmark graphs}
+	\label{tab:Parameter grid}
+\end{table}
+
+\subsection{Evaluating quality of clustering}
+
+Mann proposed a metric $M$ for scoring the partition of a network into communities. Objecting to the use of vertex set membership metrics, he proposed to use the accuracy score of a binary classification of edges as inter- or intra-community edges. He used this evaluation to show the superiority of the MCF algorithm over the edge betweenness algorithm of Girvan and Newman, which repeatedly removes the most \say{between} edge, potentially removing edges within an identified cluster. As the MCF algorithm cannot remove an edge within a community\todo{Do I need to prove this?}, the edge betweenness algorithm can receive a lower score while identifying the same communities. Further, the $M$ score's \say{sensitivity} to edges is irrelevant in other techniques which do not rely on edge removal. The metric seems specifically tailored to penalize the edge betweenness algorithm.
+
+Here, the normalized mutual information metric~\cite{danon2005comparing} and the ratio of detected to true clusters~\cite{yang2016comparative} are used. 
+
+\section{Results}\label{sec:comparison results}
+
+< Show one LFR benchmark, clustered by ground truth and then by our method. >
+
+< Also show the dendrogram for our method. >
+
+Three factors prevent us from adequately comparing the runtime of the MCF algorithm to the other clustering techniques. Most importantly, the implementation of the MCF algorithm does not perform a \say{warm start}: at each level, rather than restarting at the previous solution, it starts at the base initialization again. This inflates the actual runtime relative to an ideal implementation. Second, the algorithms are implemented in different languages. The \texttt{igraph} package is implemented in C with interfaces to Python and R, whereas the MCF algorithm is written in AMPL.
