@@ -1,24 +1,45 @@
 \chapter{INTRODUCTION} \label{ch:introduction}% Must have a blank line after every section label
 
-Who is Jack Handey and how did he become so wise?  Jack's story begins long ago, when he was just a boy in search of answers.  
 
-\section{Jack Handey's Early Years} \label{sec:Jack Early Years} % Must have a blank line after every section label
 
-Young Jack did not appear to be anything special to friends and family.  Of course they loved him because he was family, but few would say they saw early signs of wisdom in the child.  
 
-\begin{figure}[tbph]
-\centering
-\includegraphics[width=.5\linewidth]{./fig/Dissertation_Image.png} %Include graphic at 1=100 \% linewidth vs textwidth as it will size if put in columns. Textwidth wont resize in columns
-\caption{An early piece of artwork by Jack Handey, age 17}
-\label{fig:JackArt}
-\end{figure} 
+% The area of research (hierarchical clustering and community detection)
+This research illuminates the properties and comparative benefit of tools for community detection, or clustering, in networks. Community detection is of value because it is a method for unsupervised graph mining. 
+% Most relevant previous findings (Mann, etc.)
+Mann~\cite{mann2008sparsest} presented a community detection algorithm, the \emph{maximum concurrent flow (MCF) algorithm} that identifies the hierarchical structure of a network. At the same time, a number of other community detection algorithms emerged~\cite{lots of stuff}. Since the MCF algorithm was presented, new benchmarks for assessing the quality of community detection have been proposed~\cite{lancichinetti2008benchmark}. 
 
-Jack's mother saw a glimmer of something in him, however, and sent him to live with monks on the remote island of Bouvet, approximately 1,000 miles from Antarctica.  On this island covered almost entirely by a glacier, laden with sheer cliffs, Jack imbibed the wisdom of these monks and learned to become a font of wisdom himself.
+Research problem and why this is worthwhile studying
 
-\section{Beyond Bouvet} \label{sec:Beyond Bouvet} % Must have a blank line after every section label
- 
-After spending 10 years with the monks on Bouvet, they realized that he had learned all that he could from them.  With tears in his eyes, Jack left them with one final piece of wisdom to ponder: 
-\begin{quote}
-\emph{As you make your way thought this hectic world of ours, set aside a few minutes each day.  At the end of the year, you'll have a couple of days saved up \cite{Handey1994}.}
-\end{quote}
-With these words, Jack left the frigid wilds of Bouvet and prepared to rejoin the modern world.  Although he would be a keen observer of the human condition, he would never fully become part of society, but rather remained on the fringes as he shared his insights.
+Objective of the thesis: how far you hope to advance knowledge of the field
+
+Personal motivation: Why did you choose this topic?
+
+Research method in brief: How will you find out?
+
+Structure of the report: A \emph{paragraph} about each chapter. What is the main contribution of each chapter? How do they relate?
+
+\section{Linear Programming}\label{sec:Linear Programming}
+
+Mann's method relies on the maximum concurrent flow problem (MCFP), first investigated by Matula~\cite{matula1985concurrent}. This is a multicommodity flow problem with equal demand between all pairs of vertices in the network. In analogy to a minimum cut in a single-commodity flow problem, the critical saturated edges constitute a $k$-partite cut.
+
+Mann presents the \emph{hierarchical} MCFP as the basis for clustering. The method partitions the network by a set of saturated edges. Next, it fixes the current demand between all pairs and selects the largest component to continue solving. 
+
+~\cite{luenberger2008linear}
+
+Operating with feature-based datasets incurs the additional complication of deciding the strategy for establishing presence of edges between each record in the feature space.
+
+\section{Stability Analysis}\label{sec:Stability Analysis}
+
+\section{Characterizing network roles}
+
+\url{https://arxiv.org/pdf/cond-mat/0505185.pdf}
+
+- vulnerability
+
+- rich club coefficient
+
+- degree distribution
+
+\hrule
+
+Spinglass is not hierarchical. Same with multilevel and Infomap and LPA.

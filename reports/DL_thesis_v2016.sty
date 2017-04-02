@@ -756,7 +756,7 @@
 %--------------------------------------------------------------------
  \newenvironment{Copyright}{\newpage
        \pagenumbering{roman}   
-       \setcounter{page}{2}    
+       \setcounter{page}{3}    
        \vbox{\vskip 0.5in}   % Sets top margin with line below
        \begin{center} Copyright (\the\year{}) \end{center}
        \begin{center} \vskip -0.125in \myfirstname \mylastname\Suffix \end{center}
@@ -771,8 +771,6 @@
 %--------------------------------------------------------------------
 
  \newenvironment{Acknowledgment}{\newpage
-       \pagenumbering{roman}   %% added by saeed
-       \setcounter{page}{3}    %% added by saeed
        \parskip 0.00in
        %%
        %% Next line used to be \vbox{\vskip 0.63in} MARIO, 06/96
@@ -790,6 +788,20 @@
 %--------------------------------------------------------------------
 % BEGIN Acknowledgment Page
 %--------------------------------------------------------------------
+
+ \newenvironment{listofabbreviations}{\newpage
+       \vbox{\vskip 0.63in}
+       \addcontentsline{toc}{chapter}{\protect \noindent {LIST OF ABBREVIATIONS}}
+       \begin{center} LIST OF ABBREVIATIONS \end{center}
+       \let\ttbaselinestretch\tabbaselinestretch
+       \def\tabbaselinestretch{0.00in}
+       \noindent
+       \begin{labeling}{\qquad\qquad\qquad\qquad}
+       }{\end{labeling}
+       \let\tabbaselinestretch\ttbaselinestretch
+       \newpage}
+
+
 %--------------------------------------------------------------------
 % BEGIN Symbols Page
 %--------------------------------------------------------------------
@@ -801,8 +813,8 @@
        \let\ttbaselinestretch\tabbaselinestretch
        \def\tabbaselinestretch{0.00in}
        \noindent
-       \begin{tabbing}
-       }{\end{tabbing}
+       \begin{labeling}{\qquad\qquad\qquad\qquad}
+       }{\end{labeling}
        \let\tabbaselinestretch\ttbaselinestretch
        \newpage}
 %--------------------------------------------------------------------

@@ -11,7 +11,7 @@ LATEXMKOPT=-pdf -quiet -bibtex -use-make
 CONTINUOUS=-pvc
 
 MAIN=McCarthy-thesis
-SOURCES=$(MAIN).tex FrontPages.tex abstract.tex acknow.tex app.tex customcommands.tex introduction.tex packages.tex results.tex symbols.tex thesisbib.bib
+SOURCES=$(MAIN).tex FrontPages.tex abstract.tex acknow.tex app.tex customcommands.tex introduction.tex packages.tex results.tex symbols.tex thesisbib.bib literature.tex comparison.tex stability.tex insularity.tex conclusion.tex
 FIGURES := $(shell find fig/* -type f)
 
 all:    $(MAIN).pdf

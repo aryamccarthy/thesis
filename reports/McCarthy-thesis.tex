@@ -7,7 +7,18 @@
 %===========================================================
 % BEGIN Document Style
 %===========================================================
-\documentclass[12pt]{report}
+\documentclass[12pt, draft]{report}
+
+%\makeatletter
+%\DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+%\DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+%\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+%\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+%\DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+%\DeclareOldFontCommand{\sl}{\normalfont\slshape}{\@nomath\sl}
+%\DeclareOldFontCommand{\sc}{\normalfont\scshape}{\@nomath\sc}
+%\makeatother
+
 
   \usepackage{DL_thesis_v2016}  % TCM Global Style for particular SMU College, e.g. DL_thesis_v2016.sty
 
@@ -82,9 +93,19 @@
 %-----------------------------------------------------------
 %      Chapters are included here
 %-----------------------------------------------------------
-   \input{introduction.tex}        %  1. Chapter 1 
+   \input{introduction.tex}        %  1. Chapter 1
    
+   \input{literature.tex} 
+   
+   \input{comparison.tex}
+   
+   \input{stability.tex}
+
+   \input{insularity.tex}
+
    \input{results.tex}        %  2. Chapter 2
+   
+   \input{conclusion.tex}
 
 %-----------------------------------------------------------
 %   Appendices go here if no appendix, remove \StartAppendix
