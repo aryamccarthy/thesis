@@ -304,4 +304,16 @@
 \renewcommand{\bfdefault}{bx}
 \addtokomafont{labelinglabel}{\sffamily\bfseries}
 
-\newcommand{\transpose}{^T}
+\newcommand{\transpose}{^\intercal}
+
+\setlength{\epigraphwidth}{3in}
+\let\oldepigraph\epigraph
+\renewcommand{\epigraph}[2]{\oldepigraph{\setstretch{1.2}#1}{\setstretch{1.2}#2}}
+
+\renewcommand{\chapterautorefname}{Chapter}
+\renewcommand{\sectionautorefname}{Section}
+\renewcommand{\subsectionautorefname}{Subsection}
+
+\sisetup{range-phrase = \text{--}}
+
+\renewcommand{\floatpagefraction}{.8}  % Floats are less likely to get their own pages.

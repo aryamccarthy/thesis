@@ -1,0 +1,38 @@
+\chapter{THE DIRECTED HMCFP} \label{ch:directed}% Must have a blank line after every section label
+
+\section{Motivation}
+
+To this point, the MCFP has only been formulated for undirected graphs. However, the field of social network analysis does not confine itself to directed graphs. Sociograms can present directed maps of influence in social groups~\cite{moreno1934shall}. Communities exist even among these, which motivates the \emph{directed} (H)MCFP.
+
+\section{Formulation}
+
+As discussed in \autoref{sec:MCF LP}, the MCF cut algorithm hierarchically solves the LP of the maximum concurrent flow problem (MCFP). The edge-path formulation is reproduced here.
+\begin{align}
+    \max z(G, c, d) \\
+    \mathrm{s.t.} \sum_{p \in P_{ij}} f_p &= zd_{ij} \forall \{i, j\} \in D \\
+    \sum_{\{p \in P:\{i,j\} \in E_p\}} f_p &\leq c_{ij} \forall \{i, j\} \in E \\
+    f_p &\geq 0,  p \in P
+\end{align}
+Some simple extensions of this edge-path formulation can convert it into a linear program suitable for processing directed graphs.
+
+First, we'll consider the difference in the inputs. A problem instance for the undirected MCFP involved a graph, a capacity function, and a demand function. In this case, the graph contains a set of directed edges, which alters how we define our capacity and demand functions. 
+
+In general, we may simply say that the capacity function takes a directed edge as its argument. When a reciprocal connection exists between two nodes, each direction would have a different capacity, which matches our intuition about traffic networks. In certain cases, we may want the capacity to be limited, regardless of direction. The real-world analogue is a bridge with a maximum weight. These can be represented with a complementary function $c^*\colon {i, j} \rightarrow c_e$. Importantly, the domain of $c^*$ and the domain of $c$ must be disjoint and their union must be $V$, to provide complete information about the capacity of every edge. We use~$E^*$ to represent the domain of~$c^*$. When defining the linear program, we require that $c^*_\{i, j\} = c_{(i, j)} + c_{(j, i)}$ and that $c_{(i, j)}$ and $c_{(j, i)}$ are each nonnegative.
+
+In a similar way, we can define the directional demand~$d$ and the bidirectional demand~$d^*$ and introduce corresponding non-negativity constraints to maintain boundedness. The fairness metric then optimizes the througput proportional to $d_{i, j}$ for all directions---though $d_{i, j}$ is now defined over ordered tuples, rather than sets, of vertices. To handle directed edges, the set~$D$ is now $V \times V \setminus \{(v, v) \ \forall v \in V\}$, and we define~$D^*$ as the domain of $d^*$. The edge-path formulation for the directed MCFP is:
+\begin{align}
+    \max z(G, c, c^*, d, d^*) \\
+    \mathrm{s.t.} \sum_{p \in P_{ij}} f_p &= zd_{ij}, \forall (i, j) \in D \\
+    \sum_{\{p \in P:\{i,j\} \in E_p\}} f_p &\leq c_{ij}, \forall (i, j) \in E \\
+    f_p &\geq 0,  \forall p \in P \\
+    d^*_{\{i, j\}} &\geq d_{(i, j)} + d_{(j, i)}, \forall \{i, j\} \in D^* \\
+    c^*_{\{i, j\}} &\geq c_{(i, j)} + c_{(j, i)}, \forall \{i, j\} \in E^*
+\end{align}
+
+Extension to a hierarchical MCFP, freezing previous flows as starting points for subsequent iterations, is trivially done via the same procedure as in \autoref{sec:maximin LP}.
+
+\section{Discussion}
+
+If one were to use an instance of the undirected (H)MCFP as an input for the directed version, the duplication of edges would double the number of columns in the constraint matrix. Further, the number of paths doubles since their direction becomes relevant. Consequently, the size of the constraint matrix quadruples. For this reason, it is important to reduce the problem to its undirected form when possible.
+
+Also, in the directed case, it is possible to have fully saturated edges which fail to separate the graph because the capacity in the opposing direction exceeds the throughput attainable in the direction of saturated edges.  \todo{More.}

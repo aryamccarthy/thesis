@@ -1,20 +1,24 @@
-\chapter{CONCLUSION} \label{ch:conclusion}% Must have a blank line after every section label
+\chapter{CONCLUSIONS AND FUTURE WORK} \label{ch:conclusion}% Must have a blank line after every section label
 
-Summary of the problem, the main findings and the discussion. Structured according to the issues in Related Literature and Theoretical Focus.
 
-Comparison with the literature: how do your results fill in, advance or contradict previously reported research?
+This work analyzes a method of detecting hierarchical and communities in complex networks. This method is capable of detecting the absence of significant community structure as an early stopping criterion, and it performs competitively against other community detection methods. It has been shown to be stable to perturbations in the graph structure, unlike competing methods. Additionally, it can detect ties.
 
-What are the implications of your research for people working in the field that you have studied?
+We have shown that the leximin method (and the related MCF cut algorithm) can identify ties, while eight popular methods cannot. These ties are a superposition of two dendrogram behaviors, and perturbing edge capacities gives a smooth transition away from the tie behavior.
 
-In which direction should further research go?
+Gridlock is a fragmentation of the network structure that occurs when the network lacks any clear mesoscopic, community structure. All edges are saturated with flow at the same time, without any bottlenecks. For a given expected density of edges, larger graphs produce gridlock more frequently. Every gridlock graph with rational capacities is related to a multigraph with unit capacities. On these multigraphs, flow is passed between all pairs along edge-disjoint paths.
 
-\section{Overview of Significant Research Results} \label{sec:Overview} % Must have a blank line after every section label
+The leximin method is competitive with other methods for low mixing parameter. It tends to break off singletons and small structures between or at fringes of communities. Breaking off singletons suggests worthiness for evaluations involving overlapping communities. Additionally, in graphs with real-world properties but lacking strong community structure, gridlock is extremely likely to occur.
 
-\section{Comparison to Popular Methods}
+Normalized mutual information (NMI) is deficient for evaluating community detection as a ground truth because it exaggerates accuracy of a random assignment to clusters. Argued in favor of adjusted mutual information (AMI), which addresses this deficiency. Most algorithms' scores do not change significantly under AMI; the trends are the same. It does, however, assess the leximin method in a way that agrees with intuition.
 
-\section{Sensitivity and Robustness}
-
-\section{The Insularity Measure}
+Due to the complexity of the leximin method, other methods for identifying community structure may be more desirable when the ability to recognize ties is not important or concerns about stability are not paramount. Additionally, in networks with weak community structure, other methods demonstrably outperform the AMI of the leximin method, so they should be preferred.
 
 \section{Future Work}
 
+Often, the disagreement between LFR-given clusters and those identified by the leximin method is \emph{not} because nodes are assigned to the \emph{wrong} communities. Instead, nodes are splintered off into \emph{their own} communities. This especially happens when equally strong connections tie the node to two different communities. This suggests an overlapping structure with some nodes serving as hubs or middlemen. Consequently, it would be beneficial to test the method on Lancichinetti and Fortunato's benchmark for overlapping communities~\cite{lancichinetti2009benchmarks}.
+
+Additionally, the leading eigenvector method is another that displays early stopping behavior. Work to contrast their criteria for lack of mesoscopic structure in random graphs is warranted.
+
+Further, because the leximin method operates in such a high-order polynomial time, it would be beneficial to compare the accuracy of community detection performed by approximation methods that exist~\cite{shahrokhi1989approximation}~\cite{madry2010faster}.
+
+Finally, work to tighten the bound of the conjecture from \autoref{ch:random} would be beneficial to the traffic theory problems which surround the MCFP.

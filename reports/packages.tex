@@ -6,8 +6,8 @@
 %--------------------------------------------------------------------------------------------------------
 
 \usepackage{adjustbox}       % TCM Extends the graphicx package to do trimming and other adjustments.
-\usepackage{algorithm}       % TCM Algorithm block See http://algorithms.berlios.de/
-\usepackage{algorithmic}     % TCM Algorithm & Peudocode See http://en.wikibooks.org/wiki/LaTeX/Algorithms_and_Pseudocode
+%\usepackage[chapter]{algorithm}       % TCM Algorithm block See http://algorithms.berlios.de/ % ADM Chapter numbering
+%\usepackage{algorithmic}     % TCM Algorithm & Peudocode See http://en.wikibooks.org/wiki/LaTeX/Algorithms_and_Pseudocode
 \usepackage{amsmath}         % Need for subequations
 %\usepackage{amssymb}        % amssymb-telda and math symbols
 \usepackage{booktabs}        % TCM Allows fancy Tables
@@ -37,7 +37,7 @@
 \usepackage{pdflscape}		 % TCM Allows Landscape Page
 %%\usepackage{qtree}         % Need for trees
 \usepackage{setspace}        % TCM Allows for more intuitive commands for single and double spacing
-\usepackage{siunitx}		 % TCM package required to ensure units are typeset properly with numbers e.g. \SI{10}{\kg\m\per\square\s}
+\usepackage[detect-all]{siunitx}		 % TCM package required to ensure units are typeset properly with numbers e.g. \SI{10}{\kg\m\per\square\s}
 \sisetup{output-exponent-marker=\ensuremath{\mathrm{E}}}  % TCM Option allows for Scientific notation of Numbers.  Format is \num{#.####E##}
 % \usepackage[superscript]{cite}		  % TCM Makes citations superscript instead of [#]
 \usepackage [table]{xcolor}	 % TCM Allows coloring of tables
@@ -128,7 +128,12 @@
 %===========================================================
 \usepackage{tgpagella}		 		  % ADM Let's use Papyrus. It really classes up this whole affair.
 \usepackage{microtype}		 		  % ADM While we're at it, so does improved kerning.
-% \usepackage[font=small,labelfont=bf,hypcap]{caption}
-%\usepackage{mathtools, amsmath, amsfonts, amssymb}
+\usepackage[font=small,labelfont=bf,hypcap]{caption}
+\usepackage{mathtools, amsmath, amsfonts, amssymb}
 \usepackage{dirtytalk}
 \usepackage{bm}  % ADM Bold math symbols
+%\usepackage{refcheck}
+\usepackage[algochapter]{algorithm2e}
+\usepackage{epigraph}
+\usepackage{subcaption}
+\usepackage[defaultlines=1,all]{nowidow}

@@ -1,1 +1,79 @@
-\chapter{RELATED WORK} \label{ch:related work}% Must have a blank line after every section label
+\chapter{RELATED WORK} \label{ch:literature}% Must have a blank line after every section label
+
+\epigraph{Bernard of Chartres used to compare us to dwarfs perched on the shoulders of giants. He pointed out that we see more and farther than our predecessors, not because we have keener vision or greater height, but because we are lifted up and borne aloft on their gigantic stature.}{John of Salisbury, \emph{Metalogicon} (1159)}
+
+\noindent This chapter gives a brief introduction to relevant techniques in community detection and hierarchical community detection. The mechanisms of methods and their complexities are briefly described. Further, I give background in the maximum concurrent flow problem (MCFP) as it is applied to community detection. This is important because a hierarchical form of the MCFP is the basis of the algorithm described in \autoref{ch:algorithm}.
+
+\section{Traditional methods}
+
+The predecessors for modern community detection methods are graph partitioning methods and linkage methods. Graph partitioning methods seek to partition a graph into blocks, analogous to communities. The key difference is that in graph partitioning, the target number of blocks is given in the problem instance. Although linkage methods perform hierarchical clustering, they are designed for data in metric spaces, where some measure of distance (e.g.\ Euclidian, Hamming, Jaccard) can be used.
+
+\subsection{Partitioning methods}
+
+A problem related to community detection is graph partitioning. In graph partitioning, one places the nodes of the graph into $k$ blocks, where $k$ is given in the problem instance. The objective in this placement is often to minimize the number of edges between groups, though other domain-specific objectives exist~\cite{bulucc2013recent}. The decision problem formulation is NP-complete. When there is no constraint that block sizes should be similar (a \emph{balance constraint}), optimizing the metric can be as efficient as $O(\log N)$, where $N$ is the number of nodes in the graph. 
+
+By contrast, community detection methods seek to identify an unknown number of communities with unknown sizes.
+
+\subsection{Linkage methods} \label{sec:linkage}
+
+Linkage methods offer an improvement over partitioning methods because the number of communities $k$ need not be specified in advance. These agglomerative (bottom-up) methods use inter-cluster distance to decide which clusters to merge. They are sometimes called sequential, agglomerative, hierarchical, nonoverlapping (SAHN) methods~\cite{day1984efficient}. Linkage methods are popular in bioinformatics and statistics, because they are designed for clustering points in metric space, though they can be used on any graph when a distance matrix can be defined.
+
+ In each iteration of the linkage methods, the nearest two clusters are merged. They differ in their determination of cluster distance. The most common linkage methods are single linkage, complete linkage, average linkage, and Ward's method. In general, linkage methods (operate in $O(N\log^2(N))$ time.
+
+\begin{description}
+
+\item[Single Linkage.] This method is also called nearest-neighbor clustering. The distance between two clusters is the distance of their closest members. Single linkage can tend to identify long chains as clusters, progressively adding another element rather than merging larger clusters. Single linkage corresponds to identifying the maximally \emph{connected} subgraphs (that is, components) as communities~\cite{xu2008clustering}. An $O(N^2)$ version has been proposed~\cite{sibson1973slink}.
+
+\item[Complete Linkage.] This method is also called farthest-neighbor or the maximum method. The distance between two clusters is the distance of their farthest members. This makes the method sensitive to outliers. Complete linkage corresponds to identifying the maximally \emph{complete} subgraphs (that is, cliques) as communities~\cite{xu2008clustering}. Like single linkage, an $O(N^2)$ version has been proposed~\cite{defays1977efficient}.
+
+\item[Average Linkage.] This comprises two different methods: the weighted and unweighted pair group method of averages (WPGMA and UPGMA)~\cite{sneath1962numerical}. For a constant-dimensional input, these methods can execute in quadratic time~\cite{murtagh1984complexities}. Each uses the average distance between clusters, and WPGMA weights these averages by the relative number of nodes in each cluster. WPGMA is the most popular of the linkage methods.
+
+\item[Ward's Method.] Ward's method minimizes the sum of squared distances from each point to cluster centroids, generating compact, spherical clusters. Ward also identified a more general structure for SAHN methods as merging clusters that maximize an objective function~\cite{ward1963hierarchical}. The popular community detection method Fastgreedy employs this general structure, as discussed below.
+
+\item[$\mathbf{k}$-Linkage.] One of the more graph-theoretic early techniques was the $k$-linkage model introduced by Ling~\cite{ling1973probability}. It identifies clusters as groups of nodes which are at a distance $r$ from at least $k$ other nodes in the community. The work examined the $k=1$ case without the use of spatial metrics that other linkage metrics rely on.
+
+\end{description}
+These methods are often evaluated using the cophenetic correlation coefficient, a measure of agreement between distances and \emph{cophenetic distance}: the height in the dendrogram at which clusters are merged~\cite{sokal1962comparison, rohlf1968tests}, though this measure doesn't make sense for unweighted graphs. There are no good general evaluations of hierarchical communities; instead, we evaluate methods on graphs with known ground truths~\cite{lancichinetti2009detecting}.
+
+\section{Popular methods}
+
+In this section, I summarize the actions and computational complexities of the popular flat community detection algorithms available in the \say{igraph} package~\cite{csardi2006igraph}. This library has interfaces to C++, R, and Python, and is the most popular community detection library in each language, indicating that these tools are valued. In reporting these complexities, $N$ represents the number of nodes, and $M$ represents the number of edges. For more information, the reader is directed to the \say{igraph} documentation or the comparative work of Yang et al.~\cite{yang2016comparative}.
+
+\subsection{Girvan--Newman (Edge Betweenness)}
+
+The edge betweenness algorithm was proposed by Girvan and Newman~\cite{girvan2002community}; for this reason, it is commonly called the Girvan--Newman algorithm. It is a divisive hierarchical method that removes the most important edges from the graph, as determined by a measure called \emph{edge betweenness}. An edge's betweenness is the number of shortest paths it is a part of. On sparse graphs, the complexity is $O(N^3)$. In general, computing edge betweenness of all edges costs $O(MN)$, and it must be recalculated every time an edge is removed. The complexity is $O(M^2N)$. A related method uses edge information centrality instead of edge betweenness~\cite{fortunato2004method}.
+
+\subsection{Fastgreedy}
+
+Fastgreedy was proposed by Clauset et al.~\cite{clauset2004finding}. It is a specific case of the general agglomerative method proposed by Ward, which is to greedily maximize \say{any function that reflects the investigator's purpose}~\cite{ward1963hierarchical}. Particularly, it optimizes modularity~$Q$. Starting from singletons clusters, a pair of clusters is merged that will most increase modularity. For flat clustering, the method stops when no merge would further raise modularity. Like most agglomerative methods, it operates in $O(N \log^2(N))$.
+
+\subsection{Infomap}
+
+The Infomap algorithm was proposed by~Rosvall et al.~\cite{rosvall2007information, rosvall2009map}. The method maps network topology and information flow through random walks. The algorithm creates an encoding of the network, sends it through a limited-bandwidth channel, and then attempts to recreate the original signal (i.e.\ the original graph). Its complexity is $O(M)$.
+
+\subsection{Label Propagation}
+The label propagation algorithm was introduced by Raghavan et al.~\cite{raghavan2007near}. It is an asynchronous algorithm that seeks to build local consensus on community identity; however, it is sensitive to perturbation. First, each node is assigned to a unique community. Then, each node is assigned the label of the majority of its neighbors. This continues until every node has the same label as the majority of its neighbors. At this point, each label represents a community. The algorithm operates in $O(M)$.
+
+\subsection{Leading Eigenvector}
+
+The leading eigenvector method applies spectral methods to community detection. It was proposed by Newman~\cite{newman2006finding}. It is a divisive hierarchical approach. In each step, the graph is split in two in the way that best improves modularity. The method relies on the eigenvectors of the modularity matrix. When a flat clustering is desired, the algorithm can terminate early: It stops when modularity cannot be further improved. The algorithm operates in $O(N^2)$ when sparse~\cite{xie2011community}; however, linear-time spectral methods for community detection have been proposed~\cite{white2005spectral}.
+
+\subsection{Multilevel}
+
+Blonde et al.\ proposed the multilevel algorithm~\cite{blondel2008fast}. It begins, as with label propagation, by assigning every node a unique community label. In each iteration, a node is moved to a neighboring cluster in a way that maximizes modularity. This is different from Fastgreedy, which always \emph{merges} communities to increase modularity. When no merge increases modularity, nodes that share a label are treated as super-nodes. These move between communities in the same way as the individual nodes did, until modularity cannot increase. The process repeats until all nodes have been merged or modularity cannot further increase. The algorithm operates in $O(N\log N)$.
+
+\subsection{Spinglass}
+
+This algorithm was proposed by Reichardt and Bornholdt~\cite{reichardt2006statistical}. It is an approach from statistical physics. A node can be in one of $c$ spin states. The presence and absence of edges specify which node pairs prefer to maintain or alter their spin states, respectively. The model alters spin states in a finite, given number of steps, trying to balance the edge and non-edge constraints. At the end, the assigned spin states label the communities. The method requires tuning and is not deterministic. The algorithm's complexity is $O(N^{3.2})$.
+
+\subsection{Walktrap}
+
+The Walktrap algorithm was proposed by Pons and Latapy~\cite{pons2005computing}. It is an agglomerative hierarchical algorithm. The premise is that random walks are likely to remain inside communities because connections tend to lead inside them. The algorithm makes short random walks and uses them to merge communities bottom-up. The peak in modularity score can be used as a cutoff. The algorithm's complexity is $O((N \log^2(N))$. While in the same complexity class as Fastgreedy, it operates more slowly in exchange for higher accuracy~\cite{pons2005computing, yang2016comparative}.
+
+\section{The Maximum Concurrent Flow Problem}
+
+The maximum concurrent flow problem (MCFP) is a resource allocation problem in traffic engineering, first proposed by Matula~\cite{matula1985concurrent, shahrokhi1990maximum}. The problem is to determine an allocation of flow between all pairs such that all pairs receive the same amount. The technique is a heuristic for finding sparsest cuts.
+
+\subsection{MCF Cut Algorithm}
+
+Mann~\cite{mann2008sparsest} investigated a divisive hierarchical method called the \emph{MCF cut algorithm}. It has been called a \emph{divisive average linkage} method, because it produces similar results to the average linkage method of Sneath and Sokal~\cite{sneath1962numerical}. It is a divide-and-conquer technique that iteratively solves the MCFP to identify a sequence of sparsest cuts. There are many fundamental similarities between the MCF cut algorithm and the leximin algorithm investigated in this thesis. For this reason, a further discussion of the MCF cut algorithm will be given in \autoref{ch:algorithm}.

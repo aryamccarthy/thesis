@@ -1,14 +1,58 @@
-\chapter{Works by Jack Handey} \label{app:Jack Works}% Must have a blank line after every section label
+\chapter{RELEVANT BACKGROUND IN LINEAR PROGRAMMING} \label{app:LP}% Must have a blank line after every section label
 
-\centering{Deep Thoughts (1992)}
+This appendix presents an operational description of linear programming (LP), a method of constrained optimization for linear systems of inequalities. Linear programs are the common method for solving the maximum concurrent flow problem (MCFP) and hierarchical MCFP (HMCFP). For greater detail, the reader is directed to Luenberger and Ye~\cite{luenberger2008linear} or Chvatal~\cite{chvatal1983linear}.
 
-\centering{Deeper Thoughts (1993)}
+\section{Linear Programming}
 
-\centering{Deepest Thoughts (1994)}
+Linear programming optimizes an objective function that is constrained by linear equalities and inequalities. For some linear objective function $z = c \transpose x$, we want to find the $x$ that maximizes $z$ while constrained by a system of linear inequalities $Ax \leq b$. 
 
-\centering{Fuzzy Memories (1996)}
+A linear program in standard form comprises three parts:
+\begin{enumerate}
+\item A linear \say{cost} function to be maximized, e.g. $ z(x_{1},x_{2}) = c_1 x_1 + c_2 x_2$
+\item Problem constraints, e.g.
+\begin{equation}
+\begin{matrix}
+  a_{11} x_1 + a_{12} x_2 &\leq b_1 \\
+  a_{21} x_1 + a_{22} x_2 &\leq b_2 \\
+  a_{31} x_1 + a_{32} x_2 &\leq b_3 \\
+\end{matrix}\end{equation}
+\item Non-negative variables, e.g.
+\begin{equation}\begin{matrix}
+ x_1 \geq 0 \\
+ x_2 \geq 0
+\end{matrix}\end{equation}
+\end{enumerate}
+Problems with equality constraints or bounds other than non-negativity can be converted into these three parts; the reader is directed toLuenberger~and Ye~\cite{luenberger2008linear}. The problem is usually expressed in matrix form, and then becomes:
+\begin{equation}
+\max \{ %
+\mathbf{c} \transpose
+\mathbf{x} \;|\;
+ \mathbf{A} \mathbf{x} \leq \mathbf{b} \land \mathbf{x} \geq 0 \}
+\end{equation}
 
-\centering{What I'd Say to the Martians (2008)}
+These linear constraints form half-planes that bound a convex polytope (a bounded polyhedron)~\cite{nemhauser1988integer}. Any point inside this polytope is a \emph{feasible solution}. 
 
-\centering{The Stench of Honolulu: A Tropical Adventure (2013)}
+Solving a linear program (when a solution exists) gives an optimal basis~$\mathbf{B}$. This basis is a matrix of  For a given basis, there is a corresponding \emph{basic solution}~$(\mathbf{x_B}, \mathbf{0})$. Here, $\mathbf{0}$ is the zero vector. The solution only has values for each $x_i$ corresponding to a column in $\mathbf{B}$. At most, $m$ of its entries are nonzero, where $m$ is the number of columns in A. (Here, we assume as for our problem that the number of rows $n \geq m$. 
 
+\section{Shadow Prices and Sensitivity}
+
+Every linear program has a corresponding dual program in the form:
+
+\begin{equation}
+\min \{ %
+\bm{\lambda} \transpose
+\mathbf{b} \;|\;
+\bm{\lambda} \transpose \mathbf{A} \geq \mathbf{c} \transpose \land \bm{\lambda} \geq 0 \}
+\end{equation}
+
+The solutions to the dual program provide \emph{shadow prices}~$\bm \lambda$. The shadow prices reflect the marginal utility of relaxing the corresponding constraint in the primal, or the marginal cost of tightening the constraint:
+
+\begin{align}
+\lambda_i = \frac{\partial z}{\partial b_i}, \quad \forall i \in \{1, 2, \ldots, |\lambda|\}
+\end{align}
+
+These shadow prices are piecewise linear, and the particular range over which some shadow price~$\lambda_i$ is valid can be computed~\cite{luenberger2008linear}: when a value in $\mathbf{b}$ is altered, the values of the right-hand side in the optimal tableau are altered. The stable range is the interval along which the right-hand side of the tableau remains nonnegative. 
+
+\section{Practical Considerations}
+
+LPs can be quickly solved using the simplex method~\cite{puterman2014markov}. Although the method scales exponentially with input size in the worst case, average-case performance is far better. Additional methods have been proposed with polynomial worst-case behavior, such as interior point methods.
