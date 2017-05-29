@@ -1,7 +1,7 @@
 thesis
 ==============================
 
-Gridlock in networks: The Leximin Method for Hierarchical Clustering
+Gridlock in Networks: The Leximin Method for Hierarchical Clustering
 
 Project Organization
 ------------
