@@ -1,7 +1,7 @@
 thesis
 ==============================
 
-Gridlock in networks: Applying the herierarchical maximum concurrent flow problem to clustering and design
+Gridlock in networks: The Leximin Method for Hierarchical Clustering
 
 Project Organization
 ------------
