@@ -1,7 +1,7 @@
 thesis
 ==============================
 
-Gridlock in networks: Applying the herierarchical maximum concurrent flow problem to clustering and design
+Gridlock in networks: Applying the herierarchical maximum concurrent flow problem to clustering and design
 
 Project Organization
 ------------
