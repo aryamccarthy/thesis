@@ -1,0 +1,213 @@
+# open the various output files
+printf "# %s\n",cut_file > (cut_file);
+printf "# %s\n",flow_file > (flow_file);
+printf "%s\n",csv_file > (csv_file);
+printf "# %s\n",flow_through_file > (flow_through_file);
+printf "# %s\n",lp_file > (lp_file);
+printf "# %s\n",partition_file > (partition_file);
+printf "# %s\n",dual_file > (dual_file);
+printf "# %s\n",cc_file > (cc_file);
+printf "\n\n";
+
+
+let {i in V, j in V: i < j} D[i,j] := 1.0;
+
+
+set Saturated_Edges within E;
+set Critical_Edges within E;
+
+set NEW_FIXED within V cross V;
+
+param edge_flow {E};
+param current_z;
+param original_capacity;
+param zero := 1.e-10;
+param level;
+param pair_counter default 0;
+param edge_counter default 0;
+
+
+# parameters for the new hierarchical cut
+param cut_cap;	# capacity of the cut
+param cut_dem;	# demand across the cut 
+param cut_flow;	# flow across the cut that was fixed it at earlier levels
+param bound;	# the bound on z determined by the cut
+param num_pairs_cut;	# number demand pairs separated by the cut
+
+
+# calculate the degree of each node
+param degree {i in V} default 0;
+for {(i,j) in E} {
+  let degree[i] := degree[i] + 1;
+  let degree[j] := degree[j] + 1;
+}
+
+set LEVELS default 1 .. 100;
+
+set CUT_EDGES {LEVELS} within E default {};
+
+# demand pairs separated by the cut
+set FIXED_CUT_PAIRS {LEVELS} within E union NE default {};  
+set FREE_CUT_PAIRS {LEVELS} within E union NE default {};  
+
+param z_values {LEVELS} default 0;
+
+option presolve 0;
+option show_stats 1;
+option solver cplex;
+option cplex_options 'display=0 presolve=0 timing=1 baropt threads=2 sensitivity';
+suffix up OUT;
+suffix down OUT;
+suffix current OUT;
+
+printf "Solving the hierarchical MCFP with the triples formulation.\n\n";
+let level := 0;
+repeat {
+  let level := level + 1;
+  printf "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
+  printf "Hierarchical MCFP solution at level %d.\n",level;
+  solve;
+
+  printf "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" >> (dual_file);
+  printf "Critical edges in level %d:\n",level >> (dual_file); 
+  printf "Edge:\tdual\trange\n" >> (dual_file);
+  printf {(i,j) in E: abs(edge_capacity[i,j]) > zero} "(%d, %d): %g\t%f to %f\n",i,j,edge_capacity[i,j].dual,edge_capacity[i,j].down,edge_capacity[i,j].up >> (dual_file);
+  printf "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" >> (dual_file);
+  
+  for {i in V, j in V: (i,j) in E} {
+    let edge_flow[i,j] := flow[i,j];
+  }
+ 
+  let z_values[level] := z;
+
+  # write the non-zero triples to a file
+  printf "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" >> (flow_file);
+  printf "The concurrent flow at level %d is %g.\n",level,z >> (flow_file);
+  printf {(i,j,k) in TRIPLES: x[i,j,k] > zero} "%.6f units of flow from %d to %d are diverted to node %d.\n",x[i,j,k],i,j,k >> (flow_file);
+
+  let current_z := z;
+  let Critical_Edges := {(i,j) in E: abs(edge_capacity[i,j]) > zero};
+  printf "\n\nThere are %d cut edges at level %d (flow = %g) are listed below:\n",card(Critical_Edges),level,z >> (flow_file);
+  display Critical_Edges >> (flow_file);
+
+  printf "Demand pairs separated by cut %d:\n",level >> (flow_file);
+  let pair_counter := 0;
+  let NEW_FIXED := {};
+
+  for {(u,v) in (E diff FIXED): abs(edge_capacity[u,v]) > zero} {
+      let pair_counter := pair_counter + 1;
+      printf "%d: (%d,%d)\n",pair_counter,u,v >> (flow_file);
+      let D[u,v] := current_z;
+      let NEW_FIXED := NEW_FIXED union {(u,v)};
+    } 
+
+  for {(u,v) in (NE diff FIXED): abs(non_edge_capacity[u,v]) > zero} {
+      let pair_counter := pair_counter + 1;
+      printf "%d: (%d,%d)\n",pair_counter,u,v >> (flow_file);
+      let D[u,v] := current_z;
+      let NEW_FIXED := NEW_FIXED union {(u,v)};
+    }
+ 
+  let FREE_CUT_PAIRS[level] := NEW_FIXED;
+  let FIXED_CUT_PAIRS[level] := {(u, v) in FIXED: abs(fixed_flow[u,v]) > zero};
+
+  let cut_dem := card(NEW_FIXED);
+  let cut_cap := sum{(u,v) in Critical_Edges} C[u,v];
+  let cut_flow := sum{(u,v) in FIXED_CUT_PAIRS[level]} D[u,v];
+
+ 
+#  let bound := (cut_cap - cut_flow)/cut_dem;
+  # calculate the bound on z determined by the cut
+#  if (level = 1) then {
+#    printf "bound:\n%d z <= %d\nz <= %g\n",cut_dem,cut_cap,bound;;
+#  } else {
+#    printf "bound:\n%d z <= %d - %g\nz <= %g\n",cut_dem,cut_cap,cut_flow,bound;
+#  }
+  display current_z;
+  printf "\n\n";
+
+  let FIXED := FIXED union NEW_FIXED;
+  let FREE := {u in 1 .. n-1, v in u+1 .. n: (u, v) not in FIXED};
+  printf "Progress: %d out of %d (%g\%) demand pairs fixed.\n",card(FIXED),card(E union NE),card(FIXED)/card(E union NE)*100;
+ 
+  let CUT_EDGES[level] := Critical_Edges;
+  
+} until (card(FREE) == 0 || level == max_levels);
+
+printf "\nTotal seconds of CPU time: %g\n",_ampl_user_time + _total_solve_user_time;
+
+#############################################################################
+# Write the final z values and flows to the flows file
+printf "\n\nConcurrent flow values:\n" >> (flow_file);
+for {i in 1 .. card(V)-1, j in i+1 .. card(V)} {
+  printf "%d\t%d\t%f\n",i,j,D[i,j] >> (flow_file);
+}
+
+printf "Paths of length 1:\n" >> (flow_file);
+for {(i,j) in E} {
+  if D[i,j] > sum{k in V diff {i,j}: (i,j,k) in TRIPLES} x[i,j,k] then
+  printf "%d\t%d\t%f\n",i,j,D[i,j] - sum{k in V diff {i,j}: (i,j,k) in TRIPLES} x[i,j,k] >> (flow_file);
+}
+
+
+printf "Positive triples:\n" >> (flow_file);
+for {(i,j,k) in TRIPLES: x[i,j,k] > 0} {
+  if (min(i,k),max(i,k)) not in E or (min(j,k),max(j,k)) not in E then 
+    printf "%d\t%d\t%d\t%f\n",i,j,k,x[i,j,k] >> (flow_file);
+}
+
+display {(i,j) in E} sum{k in V diff {i,j}: (i,j,k) in TRIPLES} x[i,j,k] >> (flow_file);
+
+
+
+#############################################################################
+# Save the degrees and peer-to-peer flows in a spreadsheet and
+# calculate the flow-through centrality
+
+param flow_through_centrality {i in V} default 0;
+
+printf "," >> (csv_file);
+
+for {i in 1 .. n}
+  printf "%d,",i >> (csv_file);
+printf "\n" >> (csv_file);
+
+for {i in 1 .. n} {
+  printf "%d,",i >> (csv_file);
+  for {j in 1 .. n} { 
+    if i == j then
+      printf "0," >> (csv_file);
+    else {
+      printf "%g,",D[min(i,j),max(i,j)] >> (csv_file);
+      let flow_through_centrality[i] := 
+          flow_through_centrality[i] + D[min(i,j),max(i,j)];
+    }
+  }
+  printf ",%d\n",degree[i] >> (csv_file);
+}
+
+let {i in V} flow_through_centrality[i] := 
+(degree[i] - flow_through_centrality[i])/degree[i];
+
+display flow_through_centrality >> (flow_through_file);
+#############################################################################
+
+
+# Save the cuts to the cuts file
+for {l in 1 .. level} {
+  printf "[%d]",l >> (cut_file);
+  for {(i,j) in CUT_EDGES[l]} { 
+    printf " (%d,%d)",i,j >> (cut_file);
+  }
+  printf ";\n" >> (cut_file);
+}
+
+
+
+# save the lp formulation
+#problem TMCFP;
+expand >> (lp_file);
+
+#commands show_h_cc.txt;
+
+

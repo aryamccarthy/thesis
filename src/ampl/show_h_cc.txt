@@ -1,0 +1,193 @@
+# show_h_ccp.txt
+#
+# Show the hierarchy of connected components from the heirarchical MCF solution.
+#
+# Called from hmcfp_t_script.txt
+
+set CONNECTED_PAIRS within {i in V, j in V: i < j} default {i in V, j in V: i < j};
+set DISCONNECTED_PAIRS within {i in V, j in V: i < j} default {};
+set INTER within E default {};	# The set of inter-community edges
+set INTRA within E default E;	# The set of intra-community edges
+param component {V} default 0;	
+param best_component {V} default 0; 
+param num_components default 1;
+param num_edges default 1;
+param total_capacity default 1;
+param average_capacity default 1;
+param component_size default 0;
+param max_component_size default 0;
+param min_component_density default 0;
+param density default 1;
+
+
+# an s-t pair on opposite sides of the cut
+param node_s;
+param node_t;
+
+set NODES_IN_COMPONENT within V default V;
+set EDGES_IN_COMPONENT within E default E;
+set PAIRS_IN_COMPONENT within {i in V, j in V: i < j} default {i in V, j in V: i < j};
+
+set COMPONENTS default {};
+set COMPONENTS_CUT default {};
+set ACTIVE_COMPONENTS default {};
+
+param parent {COMPONENTS} default 0;
+
+
+################################ Sets and Parameters for BFS #################################
+# The following sets and parameters are used to find the connected components (communities)
+# via breadth-first search (BFS) after removing a set of cut edges.
+#
+# root is the root node of the current BFS.
+#
+# MARKED_NODES are the nodes that have been found so far by the BFS from the root node.
+#
+# UNMARKED_NODES are the nodes have not yet been identified as being any connected component.
+#
+param root;
+set MARKED_NODES ordered default {};
+set UNMARKED_NODES ordered default {};
+
+set Cut_Edges within E default {};
+
+param node_counter;
+
+let COMPONENTS := {1};
+let {i in V} component[i] := 1;
+let ACTIVE_COMPONENTS := {1};
+
+for {cut_counter in 1 .. level} {
+printf "\n=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" >> (partition_file);
+printf "%d edge(s) in cut %d:\n",card(CUT_EDGES[cut_counter]),cut_counter >> (partition_file);
+display CUT_EDGES[cut_counter] >> (partition_file);
+let Cut_Edges := Cut_Edges union CUT_EDGES[cut_counter];
+
+let INTRA := INTRA diff Cut_Edges;
+let INTER := INTER union Cut_Edges;
+
+let COMPONENTS_CUT := {};
+let {(i,j) in CUT_EDGES[cut_counter]} COMPONENTS_CUT := COMPONENTS_CUT union {component[i]} union {component[j]};
+  for {k in COMPONENTS_CUT} {
+  printf "Component %d splits into: ",k >> (partition_file);
+  let ACTIVE_COMPONENTS := ACTIVE_COMPONENTS diff {k};
+  # Determine the community structure of the current partitioning
+  let UNMARKED_NODES := {i in V: component[i] == k};
+  let MARKED_NODES := {};
+  let {i in UNMARKED_NODES} component[i] := 0;
+  #let num_components := 0;
+  let max_component_size := 0;
+  let min_component_density := Infinity;
+  repeat {
+    let component_size := 0;
+    let num_components := num_components + 1;
+    printf "%d ",num_components >> (partition_file);
+    let ACTIVE_COMPONENTS := ACTIVE_COMPONENTS union {num_components};
+    let COMPONENTS := COMPONENTS union {num_components};
+    let parent[num_components] := k;
+    let MARKED_NODES := {first(UNMARKED_NODES)};
+    let UNMARKED_NODES := UNMARKED_NODES diff {first(UNMARKED_NODES)};
+    repeat {
+      let root := first(MARKED_NODES);
+      let component_size := component_size + 1;
+      let component[root] := num_components;
+      let MARKED_NODES := MARKED_NODES diff {root};
+      for {i in UNMARKED_NODES: (min(i,root),max(i,root)) in INTRA} {
+        let component[i] := num_components;
+        let MARKED_NODES := MARKED_NODES union {i};
+        let UNMARKED_NODES := UNMARKED_NODES diff {i};
+      }
+    } until card(MARKED_NODES) == 0;
+
+    # calculate the density of this component
+    let NODES_IN_COMPONENT  := {i in V: component[i] == num_components};
+    let EDGES_IN_COMPONENT := 
+      {(i,j) in INTRA: component[i] == num_components and component[j] == num_components};
+    let density := 2*sum{(i,j) in EDGES_IN_COMPONENT} 
+C[i,j]/(card(NODES_IN_COMPONENT)*(card(NODES_IN_COMPONENT)-1));
+
+  } until card(UNMARKED_NODES) == 0;
+  printf "\n\n" >> (partition_file);
+  } # k in COMPONENTS_CUT
+
+  printf "z value at level %d:\t%g\n",cut_counter,z_values[cut_counter] >> (partition_file);
+  printf "\nConnected Components after Level %d Cut:\n",cut_counter >> (partition_file);
+
+  for {i in ACTIVE_COMPONENTS} {
+  
+  printf "\nComponent %d:",i >> (partition_file);
+  printf "\nParent: %d\n",parent[i] >> (partition_file);
+  printf "\nNumber of nodes in component:\t%d",card{j in V: component[j] == i},i >> (partition_file);
+  let num_edges := card({(u, v) in INTRA: component[u] == i and component[v] == i});
+  printf "\nNumber of edges within component:\t%d",num_edges >> (partition_file);
+  let total_capacity := sum{(u, v) in INTRA: component[u] == i and component[v] == i} C[u,v];
+  printf "\nTotal capacity within component:\t%d",total_capacity >> (partition_file);
+  if (num_edges > 0) then {
+    let average_capacity := total_capacity/num_edges;
+    printf "\nAverage capacity within component:\t%g",average_capacity >> (partition_file);
+  }
+
+  let component_size := 0;
+  printf "\nNodes in component:" >> (partition_file);
+  let node_counter := 0;
+  for {j in V: component[j] == i} {
+    let component_size := component_size + 1;
+    if node_counter == 0 then printf "\n"  >> (partition_file);
+    let node_counter := node_counter + 1;
+    printf "%d ",j >> (partition_file);
+    if node_counter == 15 then let node_counter := 0;
+  }
+  printf "\n" >> (partition_file);
+
+}
+
+
+printf "\n";
+for {i in ACTIVE_COMPONENTS, j in ACTIVE_COMPONENTS: i < j} {
+  printf "\n\n" >> (partition_file);
+  let num_edges := card({(u,v) in E: (component[u] = i and component[v] = j) or (component[u] = j and component[v] = i)}); 
+  printf "Number of edges between components %d and %d:\t%d\n",i,j,num_edges >> (partition_file);
+  let total_capacity := sum{(u,v) in E: (component[u] = i and component[v] = j) or (component[u] = j and component[v] = i)} C[u,v]; 
+  printf "Total capacity between components %d and %d:\t%d\n",i,j,total_capacity >> (partition_file);
+  if (num_edges > 0) then {
+    let average_capacity := total_capacity/num_edges;
+    printf "Average capacity between components %d and %d:\t%g\n",i,j,average_capacity >> (partition_file);
+  }
+
+}
+
+printf "\n\nComparing cut capacity to throughput:\n" >> (partition_file);
+display CUT_EDGES[cut_counter] >> (partition_file);
+printf "\n\nFlow across cut:\n" >> (partition_file);
+let cut_cap := sum{(u,v) in CUT_EDGES[cut_counter]} C[u,v];
+let cut_flow := 0;
+for {i in ACTIVE_COMPONENTS, j in ACTIVE_COMPONENTS: i < j} {
+  let num_pairs_cut := card({(u,v) in FIXED_CUT_PAIRS[cut_counter]: component[u] == i and component[v] == j});
+  let num_pairs_cut := num_pairs_cut + card({(u,v) in FIXED_CUT_PAIRS[cut_counter]: component[u] == j and component[v] == i});
+  if (num_pairs_cut > 0) then {
+    let node_s := min(min{u in V: component[u] == i} u, min{u in V: component[u] == j} u);
+    let node_t := max(min{u in V: component[u] == i} u, min{u in V: component[u] == j} u);
+    printf "%d demand pairs between components %d and %d at level %g\n",num_pairs_cut,i,j,D[node_s,node_t] >> (partition_file);
+    let cut_flow := cut_flow + num_pairs_cut*D[node_s,node_t];
+  } else {
+    let num_pairs_cut := card({(u,v) in FREE_CUT_PAIRS[cut_counter]: component[u] == i and component[v] == j});
+    let num_pairs_cut := num_pairs_cut + card({(u,v) in FREE_CUT_PAIRS[cut_counter]: component[u] == j and component[v] == i});
+    if (num_pairs_cut > 0) then {
+      printf "%d demand pairs between components %d and %d at level z%d\n",num_pairs_cut,i,j,cut_counter >> (partition_file);
+      let cut_dem := num_pairs_cut;
+    }
+  }
+
+} #for {i in 1 .. num_components - 1, j in i+1 .. num_components} {
+printf "total flow across cut = %g + %d z%d\n",cut_flow,cut_dem,cut_counter >> (partition_file);
+printf "total capacity of cut = %d\n",cut_cap >> (partition_file);
+printf "bound due to cut = %g",(cut_cap - cut_flow)/cut_dem >> (partition_file);
+
+
+
+printf "\n=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n" >> (partition_file);
+
+}
+
+
+display component > (cc_file);

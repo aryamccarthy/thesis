@@ -1,7 +1,14 @@
 thesis
 ==============================
 
-Gridlock in networks: Applying the herierarchical maximum concurrent flow problem to clustering and design
+[Gridlock in Networks: The Leximin Method for Hierarchical Community Detection](http://search.proquest.com/openview/afef8e23a074a436f0e25d8a7021feb8/1?pq-origsite=gscholar&cbl=18750&diss=y). Defended May 9, 2017.
+
+### Committee
+
+- [David W. Matula](https://www.smu.edu/Lyle/Departments/CSE/People/Faculty/MatulaDavid), _chair_
+- [Daniel W. Engels](https://datascience.smu.edu/about/leadership-and-faculty/profile/daniel-engels/)
+- [Eric C. Larson](https://www.smu.edu/Lyle/Departments/CSE/People/Faculty/LarsonEric)
+- [Eli V. Olinick](https://www.smu.edu/Lyle/Departments/EMIS/People/Faculty/OlinickEli)
 
 Project Organization
 ------------

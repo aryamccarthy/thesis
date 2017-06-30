@@ -1,0 +1,49 @@
+# Triples formulation of the HMCFP
+
+param n;		# The number of nodes in the graph
+set V := {1 .. n};	# The set of vertices in the graph
+set E within V cross V;	# The set of edges in the graph
+set NE within V cross V := {i in V, j in V: i < j} diff E;
+set FIXED within V cross V default {}; # The set of demand pairs with fixed flow
+set FREE  within V cross V default {i in V, j in V: i < j};
+set TRIPLES := {i in V, j in V diff {i}, k in V diff {i,j}: i < j and (min(i,k),max(i,k)) in E};
+
+
+param C {(i,j) in E} default 1;			# edge capacity
+param D {i in V, j in V: i < j} default 1;	# demand for pair (i,j)
+
+
+
+var x {i in V, j in V, k in V: (i,j,k) in TRIPLES} >= 0 integer;
+
+
+var z >= 0;		# The concurrent flow
+
+
+var flow {i in V, j in V: i < j} >= 0; # 
+
+
+subject to free_flow {(i,j) in FREE}:
+flow[i,j] = z - 
+sum{k in V diff {i,j}: (i,j,k) in TRIPLES} x[i,j,k] +
+sum{k in V diff {i,j}: (i,k,j) in TRIPLES} x[i,k,j] +
+sum{k in V diff {i,j}: (j,k,i) in TRIPLES} x[j,k,i] +
+sum{k in V diff {i,j}: (k,j,i) in TRIPLES} x[k,j,i] +
+sum{k in V diff {i,j}: (k,i,j) in TRIPLES} x[k,i,j]
+;
+
+subject to fixed_flow {(i,j) in FIXED}:
+flow[i,j] = D[i,j] - 
+sum{k in V diff {i,j}: (i,j,k) in TRIPLES} x[i,j,k] +
+sum{k in V diff {i,j}: (i,k,j) in TRIPLES} x[i,k,j] +
+sum{k in V diff {i,j}: (j,k,i) in TRIPLES} x[j,k,i] +
+sum{k in V diff {i,j}: (k,j,i) in TRIPLES} x[k,j,i] +
+sum{k in V diff {i,j}: (k,i,j) in TRIPLES} x[k,i,j]
+;
+
+subject to edge_capacity {(i,j) in E}: flow[i,j] <= C[i,j];
+subject to non_edge_capacity {(i,j) in NE}: flow[i,j] = 0;  
+
+
+maximize concurrent_flow: z;
+
