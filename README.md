@@ -1,7 +1,7 @@
 thesis
 ==============================
 
-[Gridlock in Networks: The Leximin Method for Hierarchical Community Detection](http://search.proquest.com/openview/afef8e23a074a436f0e25d8a7021feb8/1?pq-origsite=gscholar&cbl=18750&diss=y). Defended May 9, 2017.
+[Gridlock in Networks: The Leximin Method for Hierarchical Community Detection](https://search.proquest.com/openview/afef8e23a074a436f0e25d8a7021feb8/1?pq-origsite=gscholar&cbl=18750&diss=y). Defended May 9, 2017.
 
 ### Committee
 
